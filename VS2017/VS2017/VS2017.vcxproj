@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Allocator\fb_allocator.h" />
     <ClInclude Include="..\..\Allocator\x_allocator.h" />
+    <ClInclude Include="..\..\Examples\bm_allocator.h" />
     <ClInclude Include="..\..\Examples\my_allocator.h" />
     <ClInclude Include="..\..\Port\DataTypes.h" />
     <ClInclude Include="..\..\Port\Fault.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="..\..\Allocator\x_allocator.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\Examples\bm_allocator.c" />
     <ClCompile Include="..\..\Examples\my_allocator.c" />
     <ClCompile Include="..\..\main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

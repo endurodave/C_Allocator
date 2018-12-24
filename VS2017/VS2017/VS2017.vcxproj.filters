@@ -48,6 +48,9 @@
     <ClInclude Include="..\..\Examples\my_allocator.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Examples\bm_allocator.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Allocator\fb_allocator.c">
@@ -69,6 +72,9 @@
       <Filter>Port</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Examples\my_allocator.c">
+      <Filter>Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Examples\bm_allocator.c">
       <Filter>Examples</Filter>
     </ClCompile>
   </ItemGroup>
