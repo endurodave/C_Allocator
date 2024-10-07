@@ -304,9 +304,9 @@ void XALLOC_Free(void* ptr)
 <h2>Reference Articles</h2>
 
 <ul>
-	<li><a href="https://www.codeproject.com/Articles/1083210/An-Efficient-Cplusplus-Fixed-Block-Memory-Allocato">An Efficient C++ Fixed Block Memory Allocator</a> - by David Lafreniere</li>
-	<li><a href="https://www.codeproject.com/Articles/1084801/Replace-malloc-free-with-a-Fast-Fixed-Block-Memory">Replace malloc/free with a Fast Fixed Block Memory Allocator</a> - by David Lafreniere</li>
-	<li><a href="https://www.codeproject.com/Articles/1089905/A-Custom-STL-std-allocator-Replacement-Improves-Pe">A Custom STL std::allocator Replacement Improves Performance</a> - by David Lafreniere</li>
+	<li><a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Block Memory Allocator</a> - by David Lafreniere</li>
+	<li><a href="https://github.com/endurodave/xallocator">Replace malloc/free with a Fast Fixed Block Memory Allocator</a> - by David Lafreniere</li>
+	<li><a href="https://github.com/endurodave/stl_allocator">A Custom STL std::allocator Replacement Improves Performance</a> - by David Lafreniere</li>
 </ul>
 
 <h2>Conclusion</h2>
