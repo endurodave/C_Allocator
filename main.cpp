@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "fb_allocator.h"
 #include "my_allocator.h"
 #include "bm_allocator.h"
