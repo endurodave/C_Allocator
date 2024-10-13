@@ -3,6 +3,8 @@ Unique allocator features improve performance and protect against heap fragmenta
 
 Originally published on CodeProject at: <a href="https://www.codeproject.com/Articles/1272619/A-Fixed-Block-Memory-Allocator-in-C"><strong>A Fixed Block Memory Allocator in C</strong></a>
 
+<p><a href="https://www.cmake.org/">CMake</a>&nbsp;is used to create the build files. CMake is free and open-source software. Windows, Linux and other toolchains are supported. See the <strong>CMakeLists.txt </strong>file for more information.</p>
+
 <h2>Introduction</h2>
 
 <p>In 1998, I wrote an article on fixed block memory allocators for Embedded Systems Programming magazine. I received $750 for the piece. Now, articles are written for free on websites such as CodeProject. Oh, how times keep a-changin&rsquo;.</p>
