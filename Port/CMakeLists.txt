@@ -4,7 +4,7 @@ file(GLOB SUBDIR_SOURCES "*.cpp")
 # Collect all .h files in this subdirectory
 file(GLOB SUBDIR_HEADERS "*.h")
 
-# Create a library target named DelegateLibrary
+# Create a library target 
 add_library(PortLib STATIC ${SUBDIR_SOURCES} ${SUBDIR_HEADERS})
 
 # Include directories for the library

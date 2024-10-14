@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string.h>
 
+// @see https://github.com/endurodave/C_Allocator
+// David Lafreniere
+
 using namespace std;
 
 // Benchmark allocators defs

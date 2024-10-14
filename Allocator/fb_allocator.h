@@ -1,4 +1,5 @@
-// https://www.codeproject.com/Articles/1272619/A-Fixed-Block-Memory-Allocator-in-C
+// @see https://github.com/endurodave/C_Allocator
+// David Lafreniere
 //
 // The fb_allocator is a fixed block memory allocator that handles a 
 // single block size. 
