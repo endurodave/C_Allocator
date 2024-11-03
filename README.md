@@ -1,11 +1,34 @@
 # A Fixed Block Memory Allocator in C
-Unique allocator features improve performance and protect against heap fragmentation faults on any C or C++ project.
+
+A C language fixed block memory allocator improve performance and protect against heap fragmentation faults on any C or C++ project.
+
+# Table of Contents
+
+- [A Fixed Block Memory Allocator in C](#a-fixed-block-memory-allocator-in-c)
+- [Table of Contents](#table-of-contents)
+- [Preface](#preface)
+- [Introduction](#introduction)
+- [Background](#background)
+- [C Language Allocators](#c-language-allocators)
+  - [fb\_allocator](#fb_allocator)
+  - [x\_allocator](#x_allocator)
+  - [my\_allocator](#my_allocator)
+- [Implementation Details](#implementation-details)
+  - [fb\_allocator Free-List](#fb_allocator-free-list)
+  - [fb\_allocator Memory Alignment](#fb_allocator-memory-alignment)
+  - [x\_allocator Meta Data](#x_allocator-meta-data)
+- [Benchmarking](#benchmarking)
+- [Thread Safety](#thread-safety)
+- [Reference Articles](#reference-articles)
+- [Conclusion](#conclusion)
+
+# Preface 
 
 Originally published on CodeProject at: <a href="https://www.codeproject.com/Articles/1272619/A-Fixed-Block-Memory-Allocator-in-C"><strong>A Fixed Block Memory Allocator in C</strong></a>
 
 <p><a href="https://www.cmake.org/">CMake</a>&nbsp;is used to create the build files. CMake is free and open-source software. Windows, Linux and other toolchains are supported. See the <strong>CMakeLists.txt </strong>file for more information.</p>
 
-<h2>Introduction</h2>
+# Introduction
 
 <p>In 1998, I wrote an article on fixed block memory allocators for Embedded Systems Programming magazine. I received $750 for the piece. Now, articles are written for free on websites such as CodeProject. Oh, how times keep a-changin&rsquo;.</p>
 
@@ -30,13 +53,15 @@ Originally published on CodeProject at: <a href="https://www.codeproject.com/Art
 
 <p>Two simple C modules that dispense and reclaim memory will provide all of the aforementioned benefits, as I&#39;ll show.</p>
 
-<h2>Background</h2>
+# Background
 
 <p>Custom fixed block memory allocators are used to solve at least two types of memory related problems. First, global heap allocations/deallocations can be slow and nondeterministic. You never know how long the memory manager is going to take. Secondly, to eliminate the possibility of a memory allocation fault caused by a fragmented heap &ndash; a valid concern, especially on mission-critical type systems.</p>
 
 <p>Even if the system isn&#39;t considered mission-critical, some embedded systems are designed to run for weeks or years without a reboot. Depending on allocation patterns and heap implementation, long-term heap use can lead to heap faults.</p>
 
-<h2>fb_allocator</h2>
+# C Language Allocators
+
+## fb_allocator
 
 <p>Each <code>fb_allocator</code> instance handles a single block size. The interface is shown below:</p>
 
@@ -64,7 +89,7 @@ void* data = ALLOC_Alloc(TestAlloc, 16);</pre>
 <pre lang="C++">
 ALLOC_Free(TestAlloc, data);</pre>
 
-<h2>x_allocator</h2>
+## x_allocator
 
 <p>The <code>x_allocator</code> module handles multiple memory block sizes using two or more <code>fb_allocator</code> instances; one <code>fb_allocator</code> per block size. During allocation, <code>x_allocator</code> returns a block sized from one of the <code>fb_allocator</code> instances based on the caller&rsquo;s requested size. The <code>x_allocator</code> API is shown below:</p>
 
@@ -76,7 +101,7 @@ void* XALLOC_Calloc(XAllocData* self, size_t num, size_t size);</pre>
 
 <p>Users of <code>x_allocator</code> typically create a thin wrapper module that (a) defines two or more <code>fb_allocator</code> instances and (b) provides a custom API to access the <code>x_allocator</code> memory. It&rsquo;s easier to explain with a simple example.</p>
 
-<h2>my_allocator</h2>
+## my_allocator
 
 <p>Let&rsquo;s say we want a fixed block allocator to dispense two block sizes: 32 and 128. We&rsquo;ll call it <code>my_allocator</code> and the API is shown below:</p>
 
@@ -139,11 +164,11 @@ void* MYALLOC_Calloc(size_t num, size_t size)
 
 <p>When the caller calls <code>MYALLOC_Alloc()</code> with a size between 1 to 32, a 32-byte block is returned. If the requested size is between 33 and 128, a 128-byte block is provided. <code>MYALLOC_Free()</code> returns the block to the originating <code>fb_allocator</code> instance. In this way, a collection of fixed block memory allocators are grouped together providing variable sized memory blocks at runtime based on application demand. The sample wrapper pattern is used again and again offering groups of memory blocks for specific purposes within the system.</p>
 
-<h2>Implementation Details</h2>
+# Implementation Details
 
 <p>Most of the allocator implementation is relatively straight forward. However, I&rsquo;ll explain a few details to assist with key concepts.</p>
 
-<h3>fb_allocator Free-List</h3>
+## fb_allocator Free-List
 
 <p>This is a handy technique for linking blocks together in the free-list without consuming any extra storage for the pointers. After the user calls <code>ALLOC_Free()</code>, a fixed memory block is no longer being utilized and is freed to be used for other things, like a next pointer. Since the <code>fb_allocator</code> module needs to keep the deleted blocks around, we put the list&#39;s next pointer in that currently unused block space. When the block is reused by the application, the pointer is no longer needed and will be overwritten by the user object. This way, there is no per-instance storage overhead incurred linking blocks together.</p>
 
@@ -151,11 +176,11 @@ void* MYALLOC_Calloc(size_t num, size_t size)
 
 <p>Using freed object space as the memory to link blocks together means the object must be large enough to hold a pointer. The <code>ALLOC_BLOCK_SIZE </code>macro ensures that the minimum size is met.</p>
 
-<h3>fb_allocator Memory Alignment</h3>
+## fb_allocator Memory Alignment
 
 <p>Some embedded systems require memory to be aligned on a particular byte boundary. Since the allocator&rsquo;s memory is a contiguous <code>static</code> byte array, having blocks start on an unaligned boundary could cause a hardware exception on some CPUs. For instance, 13-byte blocks will cause a problem if 4-byte alignment is required. Change <code>ALLOC_MEM_ALIGN </code>to the byte boundary desired. The block size will be rounded up to the next nearest aligned boundary.</p>
 
-<h3>x_allocator Meta Data</h3>
+## x_allocator Meta Data
 
 <p>The <code>x_allocator</code> implementation adds 4-bytes of meta data per block. For instance, if 32-byte blocks are required by the user, the <code>x_allocator</code> actually uses 36-byte blocks. The extra 4-bytes are used to hide an <code>fb_allocator</code> pointer inside the block (assuming the pointer is 4-bytes in size).</p>
 
@@ -216,7 +241,7 @@ void XALLOC_Free(void* ptr)
     }
 }</pre>
 
-<h2>Benchmarking</h2>
+# Benchmarking
 
 <p>Benchmarking the allocator performance vs. the global heap on a Windows PC shows just how fast the code&nbsp;is. A&nbsp;basic test of allocating and deallocating 20000 4096 and 2048 sized blocks in a somewhat interleaved fashion&nbsp;tests the speed improvement. See the attached source code for the exact algorithm.&nbsp;</p>
 
@@ -299,11 +324,11 @@ void XALLOC_Free(void* ptr)
 
 <p>In comparison to the Windows global heap, the <code>fb_allocator </code>is about 8 times faster and <code>x_allocator </code>is about 5 times faster. On embedded devices, I&#39;ve seen as high as a 15x speed increase over the global heap.&nbsp;</p>
 
-<h2>Thread Safety</h2>
+# Thread Safety
 
 <p>The <code>LK_LOCK </code>and <code>LK_UNLOCK </code>macros within the <code>LockGuard</code> module implement the software locks needed for thread safety. Update the lock implementation as required for your platforms operating system.</p>
 
-<h2>Reference Articles</h2>
+# Reference Articles
 
 <ul>
 	<li><a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Block Memory Allocator</a> - by David Lafreniere</li>
@@ -311,7 +336,7 @@ void XALLOC_Free(void* ptr)
 	<li><a href="https://github.com/endurodave/stl_allocator">A Custom STL std::allocator Replacement Improves Performance</a> - by David Lafreniere</li>
 </ul>
 
-<h2>Conclusion</h2>
+# Conclusion
 
 <p>The C-based fixed block memory allocator presented here is suitable for any C or C++ system. For a C++ specific implementation with its own unique features, see the referenced articles.</p>
 
