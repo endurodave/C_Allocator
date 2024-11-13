@@ -2,6 +2,8 @@
 
 A C language fixed block memory allocator improve performance and protect against heap fragmentation faults on any C or C++ project.
 
+See <a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Block Memory Allocator</a> for a C++ version of this allocator. 
+
 # Table of Contents
 
 - [A Fixed Block Memory Allocator in C](#a-fixed-block-memory-allocator-in-c)
