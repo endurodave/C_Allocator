@@ -1,3 +1,8 @@
+![License MIT](https://img.shields.io/github/license/BehaviorTree/BehaviorTree.CPP?color=blue)
+[![conan Ubuntu](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_ubuntu.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_ubuntu.yml)
+[![conan Ubuntu](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_clang.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_clang.yml)
+[![conan Windows](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_windows.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_windows.yml)
+
 # A Fixed Block Memory Allocator in C
 
 A C language fixed block memory allocator improve performance and protect against heap fragmentation faults on any C or C++ project.
