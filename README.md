@@ -14,6 +14,7 @@ See <a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Blo
 - [A Fixed Block Memory Allocator in C](#a-fixed-block-memory-allocator-in-c)
 - [Table of Contents](#table-of-contents)
 - [Preface](#preface)
+- [Getting Started](#getting-started)
 - [Introduction](#introduction)
 - [Background](#background)
 - [C Language Allocators](#c-language-allocators)
@@ -33,7 +34,14 @@ See <a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Blo
 
 Originally published on CodeProject at: <a href="https://www.codeproject.com/Articles/1272619/A-Fixed-Block-Memory-Allocator-in-C"><strong>A Fixed Block Memory Allocator in C</strong></a>
 
-<p><a href="https://www.cmake.org/">CMake</a>&nbsp;is used to create the build files. CMake is free and open-source software. Windows, Linux and other toolchains are supported. See the <strong>CMakeLists.txt </strong>file for more information.</p>
+# Getting Started
+
+[CMake](https://cmake.org/) is used to create the project build files on any Windows or Linux machine. The allocator  source code works on any C/C++ compiler on any platform.
+
+1. Clone the repository.
+2. From the repository root, run the following CMake command:   
+   `cmake -B Build .`
+3. Build and run the project within the `Build` directory. 
 
 # Introduction
 
@@ -41,7 +49,7 @@ Originally published on CodeProject at: <a href="https://www.codeproject.com/Art
 
 <p>One thing that hasn&rsquo;t changed is the usefulness of fixed block allocators. It&rsquo;s a no-no using the global heap on some devices. Throughout my career, I&rsquo;ve written numerous fixed block memory allocators to provide high-speed dynamic-like allocation in memory constrained systems. A generic, well-designed fixed block allocator opens up application implementation possibilities by offering dynamic memory allocations in systems where heap usage is forbidden.</p>
 
-<p>On CodeProject, I&rsquo;ve documented various C++ allocator implementations (see the Reference Articles section). This time, I&rsquo;ll present a C language version with unique features suitable for embedded devices or otherwise.</p>
+<p>I&rsquo;ve documented various C++ allocator implementations (see the Reference Articles section). This time, I&rsquo;ll present a C language version with unique features suitable for embedded devices or otherwise.</p>
 
 <p>The solution presented here will:</p>
 
