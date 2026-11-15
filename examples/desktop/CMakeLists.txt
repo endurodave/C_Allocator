@@ -10,7 +10,6 @@ add_library(ExamplesLib STATIC ${SUBDIR_SOURCES} ${SUBDIR_HEADERS})
 # Include directories for the library
 target_include_directories(ExamplesLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries(ExamplesLib LINK_PUBLIC 
-	PortLib
-	AllocatorLib
+target_link_libraries(ExamplesLib LINK_PUBLIC
+	C_AllocatorLib
 )

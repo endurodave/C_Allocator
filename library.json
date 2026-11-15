@@ -1,38 +1,74 @@
 {
   "name": "C_Allocator",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Fixed block memory allocator in C: static pools, no heap, deterministic. fb_allocator for one block size, x_allocator for malloc/free style use across several sizes. RTOS locks for FreeRTOS, ThreadX, Zephyr and CMSIS-RTOS2.",
-  "keywords": ["allocator", "memory", "memory pool", "fixed block", "static pool", "malloc", "embedded", "c", "rtos"],
-  "repository": { "type": "git", "url": "https://github.com/endurodave/C_Allocator.git" },
-  "authors": [{ "name": "David Lafreniere", "url": "https://github.com/endurodave", "maintainer": true }],
+  "keywords": [
+    "allocator",
+    "memory",
+    "memory pool",
+    "fixed block",
+    "static pool",
+    "malloc",
+    "embedded",
+    "c",
+    "rtos"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/endurodave/C_Allocator.git"
+  },
+  "authors": [
+    {
+      "name": "David Lafreniere",
+      "url": "https://github.com/endurodave",
+      "maintainer": true
+    }
+  ],
   "license": "MIT",
   "homepage": "https://github.com/endurodave/C_Allocator",
   "frameworks": "*",
   "platforms": "*",
-  "headers": ["fb_allocator.h", "x_allocator.h"],
+  "headers": [
+    "C_Allocator.h",
+    "fb_allocator.h",
+    "x_allocator.h"
+  ],
   "export": {
     "include": [
-      "Allocator/fb_allocator.c", "Allocator/fb_allocator.h",
-      "Allocator/x_allocator.c", "Allocator/x_allocator.h",
-      "Port/LockGuard.cpp", "Port/LockGuard.h",
-      "Port/Fault.cpp", "Port/Fault.h",
-      "LICENSE", "README.md", "library.json",
-      "Examples/platformio/c-allocator-demo/platformio.ini",
-      "Examples/platformio/c-allocator-demo/freertos_path.py",
-      "Examples/platformio/c-allocator-demo/src/main.cpp"
+      "src",
+      "examples",
+      "main.cpp",
+      "CMakeLists.txt",
+      "LICENSE",
+      "README.md",
+      "library.json",
+      "library.properties"
+    ],
+    "exclude": [
+      "**/.pio",
+      "**/.pio/**"
     ]
   },
   "build": {
-    "srcDir": ".",
-    "includeDir": "Allocator",
-    "srcFilter": ["-<*>", "+<Allocator/fb_allocator.c>", "+<Allocator/x_allocator.c>", "+<Port/LockGuard.cpp>", "+<Port/Fault.cpp>"],
-    "flags": ["-I Port"]
+    "srcDir": "src",
+    "includeDir": "src"
   },
   "examples": [
     {
       "name": "c-allocator-demo",
-      "base": "Examples/platformio/c-allocator-demo",
-      "files": ["platformio.ini", "freertos_path.py", "src/main.cpp"]
+      "base": "examples/platformio/c-allocator-demo",
+      "files": [
+        "platformio.ini",
+        "freertos_path.py",
+        "src/main.cpp"
+      ]
+    },
+    {
+      "name": "C_Allocator_Demo",
+      "base": "examples/C_Allocator_Demo",
+      "files": [
+        "C_Allocator_Demo.ino"
+      ]
     }
   ]
 }

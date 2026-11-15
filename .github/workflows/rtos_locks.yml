@@ -54,7 +54,7 @@ jobs:
     - name: Compile
       run: |
         FLAGS="-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -O2 -Wall -Wextra -Werror --specs=nano.specs"
-        arm-none-eabi-g++ Port/LockGuard.cpp Port/Fault.cpp $FLAGS -std=gnu++11 -fno-exceptions \
-          -D${{ matrix.lock }} -D__PROGRAM_START=1 -I Port -I /tmp/threadx -I /tmp/cmsis
-        arm-none-eabi-gcc Allocator/fb_allocator.c Allocator/x_allocator.c $FLAGS -std=c99 \
-          -I Allocator -I Port
+        arm-none-eabi-g++ src/LockGuard.cpp src/Fault.cpp $FLAGS -std=gnu++11 -fno-exceptions \
+          -D${{ matrix.lock }} -D__PROGRAM_START=1 -I src -I /tmp/threadx -I /tmp/cmsis
+        arm-none-eabi-gcc src/fb_allocator.c src/x_allocator.c $FLAGS -std=c99 \
+          -I src

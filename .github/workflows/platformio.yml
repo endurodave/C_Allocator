@@ -1,6 +1,6 @@
 name: PlatformIO
 
-# Builds Examples/platformio/c-allocator-demo for every board in its
+# Builds examples/platformio/c-allocator-demo for every board in its
 # platformio.ini, and runs the native build on the desktop. The example's
 # lib_deps points at this checkout, so each push tests the library as
 # PlatformIO users consume it (library.json, srcFilter).
@@ -29,7 +29,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Examples/platformio/c-allocator-demo
+        working-directory: examples/platformio/c-allocator-demo
 
     steps:
     - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
         path: |
           ~/.cache/pip
           ~/.platformio
-        key: pio-${{ matrix.env }}-${{ hashFiles('Examples/platformio/c-allocator-demo/platformio.ini') }}
+        key: pio-${{ matrix.env }}-${{ hashFiles('examples/platformio/c-allocator-demo/platformio.ini') }}
 
     - name: Set up Python
       uses: actions/setup-python@v5
