@@ -43,8 +43,6 @@ ALLOC_DEFINE(xAlloc64, 64 + XALLOC_BLOCK_META_DATA_SIZE, 16)
 ALLOC_DEFINE(xAlloc256, 256 + XALLOC_BLOCK_META_DATA_SIZE, 4)
 
 static ALLOC_Allocator* const xAllocators[] = { &xAlloc16Obj, &xAlloc64Obj, &xAlloc256Obj };
-// x_allocator uses the pool objects above, not the handles ALLOC_DEFINE also makes
-static const void* const unusedHandles[] = { &xAlloc16, &xAlloc64, &xAlloc256 };
 static XAllocData xData = { xAllocators, sizeof(xAllocators) / sizeof(xAllocators[0]) };
 
 // malloc/free style API over the pools above

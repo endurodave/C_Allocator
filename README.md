@@ -4,6 +4,7 @@
 [![conan Windows](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_windows.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_windows.yml)
 [![PlatformIO](https://github.com/endurodave/C_Allocator/actions/workflows/platformio.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/platformio.yml)
 [![RTOS Locks](https://github.com/endurodave/C_Allocator/actions/workflows/rtos_locks.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/rtos_locks.yml)
+[![Arduino](https://github.com/endurodave/C_Allocator/actions/workflows/arduino.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/arduino.yml)
 
 # A Fixed Block Memory Allocator in C
 
@@ -17,6 +18,8 @@ See <a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Blo
 - [Table of Contents](https://github.com/endurodave/C_Allocator#table-of-contents)
 - [Preface](https://github.com/endurodave/C_Allocator#preface)
 - [Getting Started](https://github.com/endurodave/C_Allocator#getting-started)
+  - [Arduino](https://github.com/endurodave/C_Allocator#arduino)
+  - [PlatformIO](https://github.com/endurodave/C_Allocator#platformio)
 - [Introduction](https://github.com/endurodave/C_Allocator#introduction)
 - [Background](https://github.com/endurodave/C_Allocator#background)
 - [C Language Allocators](https://github.com/endurodave/C_Allocator#c-language-allocators)
@@ -45,20 +48,28 @@ Originally published on CodeProject at: <a href="https://www.codeproject.com/Art
    `cmake -B Build .`
 3. Build and run the project within the `Build` directory. 
 
+The library is the `src` folder: `fb_allocator`, `x_allocator`, the `LockGuard` lock module and the `Fault` handler. The desktop example allocators (`my_allocator`, `bm_allocator`) built by CMake are in `examples/desktop`.
+
+## Arduino
+
+`C_Allocator` is an Arduino library. In the Arduino IDE, install **C_Allocator** from the Library Manager (Sketch &rarr; Include Library &rarr; Manage Libraries), or download the repository as a ZIP and use Sketch &rarr; Include Library &rarr; Add .ZIP Library. Then `#include <C_Allocator.h>`, call `ALLOC_Init()` once in `setup()`, and see File &rarr; Examples &rarr; C_Allocator &rarr; C_Allocator_Demo.
+
+The lock is chosen automatically: `std::mutex` where the core has it (ESP32), none on single-threaded boards (AVR, STM32, RP2040 without an RTOS). The RTOS lock options below are build flags, so they need PlatformIO (or an IDE that passes defines). The demo fits an Uno: it uses about 1.4 KB of RAM in all, most of it the pools.
+
 ## PlatformIO
 
 `C_Allocator` is in the [PlatformIO registry](https://registry.platformio.org/libraries/endurodave/C_Allocator). Add it to your project's `platformio.ini`:
 
 ```ini
-lib_deps = endurodave/C_Allocator@^2.0.0
+lib_deps = endurodave/C_Allocator@^2.1.0
 ```
 
-Then `#include "fb_allocator.h"` (and `"x_allocator.h"`), call `ALLOC_Init()` once at startup, and define allocators with `ALLOC_DEFINE`. The allocators are C; the lock module (`Port/LockGuard.cpp`) is C++, so the build needs a C++ compiler, as every PlatformIO platform has. Builds on ESP32, STM32, RP2040 and the desktop (`platform = native`); 8-bit AVR builds too, with no lock. On an RTOS, add the lock option for your OS, e.g. `build_flags = -DALLOC_LOCK_FREERTOS`; see [Thread Safety](https://github.com/endurodave/C_Allocator#thread-safety).
+Then `#include "fb_allocator.h"` (and `"x_allocator.h"`), call `ALLOC_Init()` once at startup, and define allocators with `ALLOC_DEFINE`. The allocators are C; the lock module (`src/LockGuard.cpp`) is C++, so the build needs a C++ compiler, as every PlatformIO platform has. Builds on ESP32, STM32, RP2040 and the desktop (`platform = native`); 8-bit AVR builds too, with no lock. On an RTOS, add the lock option for your OS, e.g. `build_flags = -DALLOC_LOCK_FREERTOS`; see [Thread Safety](https://github.com/endurodave/C_Allocator#thread-safety).
 
-The [c-allocator-demo](https://github.com/endurodave/C_Allocator/tree/master/Examples/platformio/c-allocator-demo) example runs on ESP32, ESP32-C3, STM32 Nucleo-F401RE, STM32F4 Discovery (two FreeRTOS tasks sharing the allocators with `ALLOC_LOCK_FREERTOS`), Raspberry Pi Pico and the desktop:
+The [c-allocator-demo](https://github.com/endurodave/C_Allocator/tree/master/examples/platformio/c-allocator-demo) example runs on ESP32, ESP32-C3, STM32 Nucleo-F401RE, STM32F4 Discovery (two FreeRTOS tasks sharing the allocators with `ALLOC_LOCK_FREERTOS`), Raspberry Pi Pico and the desktop:
 
 ```shell
-cd Examples/platformio/c-allocator-demo
+cd examples/platformio/c-allocator-demo
 pio run -e esp32dev -t upload -t monitor
 pio run -e native -t exec
 ```
@@ -378,7 +389,7 @@ void XALLOC_Free(void* ptr)
 
 <p>Bare-metal toolchains without threads support (e.g. <code>arm-none-eabi</code> as used by STM32duino and the Raspberry Pi Pico cores, or AVR) have no <code>std::mutex</code>, so there the default is no lock: pick an RTOS option if the allocators are used from more than one task. With an interrupt-masking option (FreeRTOS on Cortex-M or ESP32, ThreadX, Zephyr, CMSIS-RTOS2), <code>ALLOC_Alloc()</code> and <code>ALLOC_Free()</code> may also be called from an interrupt.</p>
 
-<p>On a fault, such as an exhausted pool, the allocators call <code>FaultHandler()</code> (<em>Port/Fault.cpp</em>). The default asserts and aborts. On GCC and Clang it is a weak symbol: define your own <code>FaultHandler()</code> to log or reset instead.</p>
+<p>On a fault, such as an exhausted pool, the allocators call <code>FaultHandler()</code> (<em>src/Fault.cpp</em>). The default asserts and aborts. On GCC and Clang it is a weak symbol: define your own <code>FaultHandler()</code> to log or reset instead.</p>
 
 # Reference Articles
 
