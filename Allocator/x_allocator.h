@@ -64,7 +64,7 @@ typedef struct
     ALLOC_Allocator* const *allocators;
 
     // Number of allocator instances stored within the allocators array
-    const UINT16 maxAllocators;
+    const uint16_t maxAllocators;
 } XAllocData;
 
 void* XALLOC_Alloc(XAllocData* self, size_t size);

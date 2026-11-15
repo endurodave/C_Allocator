@@ -1,4 +1,5 @@
 #include "fb_allocator.h"
+#include "DataTypes.h"
 #include "my_allocator.h"
 #include "bm_allocator.h"
 #include "Fault.h"

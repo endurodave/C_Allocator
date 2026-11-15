@@ -1,7 +1,9 @@
-![License MIT](https://img.shields.io/github/license/BehaviorTree/BehaviorTree.CPP?color=blue)
+![License MIT](https://img.shields.io/github/license/endurodave/C_Allocator?color=blue)
 [![conan Ubuntu](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_ubuntu.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_ubuntu.yml)
 [![conan Ubuntu](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_clang.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_clang.yml)
 [![conan Windows](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_windows.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/cmake_windows.yml)
+[![PlatformIO](https://github.com/endurodave/C_Allocator/actions/workflows/platformio.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/platformio.yml)
+[![RTOS Locks](https://github.com/endurodave/C_Allocator/actions/workflows/rtos_locks.yml/badge.svg)](https://github.com/endurodave/C_Allocator/actions/workflows/rtos_locks.yml)
 
 # A Fixed Block Memory Allocator in C
 
@@ -11,24 +13,24 @@ See <a href="https://github.com/endurodave/Allocator">An Efficient C++ Fixed Blo
 
 # Table of Contents
 
-- [A Fixed Block Memory Allocator in C](#a-fixed-block-memory-allocator-in-c)
-- [Table of Contents](#table-of-contents)
-- [Preface](#preface)
-- [Getting Started](#getting-started)
-- [Introduction](#introduction)
-- [Background](#background)
-- [C Language Allocators](#c-language-allocators)
-  - [fb\_allocator](#fb_allocator)
-  - [x\_allocator](#x_allocator)
-  - [my\_allocator](#my_allocator)
-- [Implementation Details](#implementation-details)
-  - [fb\_allocator Free-List](#fb_allocator-free-list)
-  - [fb\_allocator Memory Alignment](#fb_allocator-memory-alignment)
-  - [x\_allocator Meta Data](#x_allocator-meta-data)
-- [Benchmarking](#benchmarking)
-- [Thread Safety](#thread-safety)
-- [Reference Articles](#reference-articles)
-- [Conclusion](#conclusion)
+- [A Fixed Block Memory Allocator in C](https://github.com/endurodave/C_Allocator#a-fixed-block-memory-allocator-in-c)
+- [Table of Contents](https://github.com/endurodave/C_Allocator#table-of-contents)
+- [Preface](https://github.com/endurodave/C_Allocator#preface)
+- [Getting Started](https://github.com/endurodave/C_Allocator#getting-started)
+- [Introduction](https://github.com/endurodave/C_Allocator#introduction)
+- [Background](https://github.com/endurodave/C_Allocator#background)
+- [C Language Allocators](https://github.com/endurodave/C_Allocator#c-language-allocators)
+  - [fb\_allocator](https://github.com/endurodave/C_Allocator#fb_allocator)
+  - [x\_allocator](https://github.com/endurodave/C_Allocator#x_allocator)
+  - [my\_allocator](https://github.com/endurodave/C_Allocator#my_allocator)
+- [Implementation Details](https://github.com/endurodave/C_Allocator#implementation-details)
+  - [fb\_allocator Free-List](https://github.com/endurodave/C_Allocator#fb_allocator-free-list)
+  - [fb\_allocator Memory Alignment](https://github.com/endurodave/C_Allocator#fb_allocator-memory-alignment)
+  - [x\_allocator Meta Data](https://github.com/endurodave/C_Allocator#x_allocator-meta-data)
+- [Benchmarking](https://github.com/endurodave/C_Allocator#benchmarking)
+- [Thread Safety](https://github.com/endurodave/C_Allocator#thread-safety)
+- [Reference Articles](https://github.com/endurodave/C_Allocator#reference-articles)
+- [Conclusion](https://github.com/endurodave/C_Allocator#conclusion)
 
 # Preface 
 
@@ -42,6 +44,24 @@ Originally published on CodeProject at: <a href="https://www.codeproject.com/Art
 2. From the repository root, run the following CMake command:   
    `cmake -B Build .`
 3. Build and run the project within the `Build` directory. 
+
+## PlatformIO
+
+`C_Allocator` is in the [PlatformIO registry](https://registry.platformio.org/libraries/endurodave/C_Allocator). Add it to your project's `platformio.ini`:
+
+```ini
+lib_deps = endurodave/C_Allocator@^2.0.0
+```
+
+Then `#include "fb_allocator.h"` (and `"x_allocator.h"`), call `ALLOC_Init()` once at startup, and define allocators with `ALLOC_DEFINE`. The allocators are C; the lock module (`Port/LockGuard.cpp`) is C++, so the build needs a C++ compiler, as every PlatformIO platform has. Builds on ESP32, STM32, RP2040 and the desktop (`platform = native`); 8-bit AVR builds too, with no lock. On an RTOS, add the lock option for your OS, e.g. `build_flags = -DALLOC_LOCK_FREERTOS`; see [Thread Safety](https://github.com/endurodave/C_Allocator#thread-safety).
+
+The [c-allocator-demo](https://github.com/endurodave/C_Allocator/tree/master/Examples/platformio/c-allocator-demo) example runs on ESP32, ESP32-C3, STM32 Nucleo-F401RE, STM32F4 Discovery (two FreeRTOS tasks sharing the allocators with `ALLOC_LOCK_FREERTOS`), Raspberry Pi Pico and the desktop:
+
+```shell
+cd Examples/platformio/c-allocator-demo
+pio run -e esp32dev -t upload -t monitor
+pio run -e native -t exec
+```
 
 # Introduction
 
@@ -193,7 +213,7 @@ void* MYALLOC_Calloc(size_t num, size_t size)
 
 ## fb_allocator Memory Alignment
 
-<p>Some embedded systems require memory to be aligned on a particular byte boundary. Since the allocator&rsquo;s memory is a contiguous <code>static</code> byte array, having blocks start on an unaligned boundary could cause a hardware exception on some CPUs. For instance, 13-byte blocks will cause a problem if 4-byte alignment is required. Change <code>ALLOC_MEM_ALIGN </code>to the byte boundary desired. The block size will be rounded up to the next nearest aligned boundary.</p>
+<p>Some embedded systems require memory to be aligned on a particular byte boundary. Since the allocator&rsquo;s memory is a contiguous <code>static</code> byte array, having blocks start on an unaligned boundary could cause a hardware exception on some CPUs. For instance, 13-byte blocks will cause a problem if 4-byte alignment is required. The block size is rounded up to a multiple of <code>ALLOC_MEM_ALIGN</code>, and <code>ALLOC_DEFINE</code> aligns each pool for any pointer, <code>long long</code> or <code>double</code>. <code>ALLOC_MEM_ALIGN</code> defaults to the pointer size, so every block is aligned for pointers and 32-bit words (Cortex-M0, for one, faults on an unaligned word access). Define it to change the boundary, e.g. <code>-DALLOC_MEM_ALIGN=8</code>.</p>
 
 ## x_allocator Meta Data
 
@@ -341,7 +361,24 @@ void XALLOC_Free(void* ptr)
 
 # Thread Safety
 
-<p>The <code>LK_LOCK </code>and <code>LK_UNLOCK </code>macros within the <code>LockGuard</code> module implement the software locks needed for thread safety. Update the lock implementation as required for your platforms operating system.</p>
+<p><code>fb_allocator</code> is thread-safe: one lock in the <code>LockGuard</code> module guards every allocator&rsquo;s free-list and statistics. The lock is held only for a free-list push or pop, so on an RTOS a short critical section suits it better than a mutex: no kernel object, no priority inversion, and it works before the scheduler starts and inside interrupts.</p>
+
+<p>The lock is selected at compile time. Define at most one option for the whole build (e.g. <code>build_flags</code> in <em>platformio.ini</em>, or <code>add_compile_definitions()</code> in CMake):</p>
+
+<table>
+	<tr><th>Option</th><th>Lock</th></tr>
+	<tr><td>(default)</td><td><code>std::mutex</code> when the C++ library provides it (Windows, Linux, macOS, ESP32); otherwise none</td></tr>
+	<tr><td><code>ALLOC_LOCK_FREERTOS</code></td><td>FreeRTOS critical section: <code>taskENTER_CRITICAL()</code>, or <code>taskENTER_CRITICAL_FROM_ISR()</code> inside an interrupt on Cortex-M; a <code>portENTER_CRITICAL_SAFE()</code> spinlock on ESP32. No lock before the scheduler starts.</td></tr>
+	<tr><td><code>ALLOC_LOCK_THREADX</code></td><td><code>tx_interrupt_control()</code> interrupt masking</td></tr>
+	<tr><td><code>ALLOC_LOCK_ZEPHYR</code></td><td><code>irq_lock()</code>/<code>irq_unlock()</code></td></tr>
+	<tr><td><code>ALLOC_LOCK_CMSIS_RTOS2</code></td><td>Cortex-M PRIMASK interrupt masking (CMSIS-Core), for any CMSIS-RTOS2 kernel</td></tr>
+	<tr><td><code>ALLOC_LOCK_USER</code></td><td>Your <code>void ALLOC_UserLock(void)</code> and <code>void ALLOC_UserUnlock(void)</code></td></tr>
+	<tr><td><code>ALLOC_LOCK_NONE</code></td><td>No lock, for single-threaded systems. <code>SM_NO_LOCKS</code> (C_StateMachine) selects it too.</td></tr>
+</table>
+
+<p>Bare-metal toolchains without threads support (e.g. <code>arm-none-eabi</code> as used by STM32duino and the Raspberry Pi Pico cores, or AVR) have no <code>std::mutex</code>, so there the default is no lock: pick an RTOS option if the allocators are used from more than one task. With an interrupt-masking option (FreeRTOS on Cortex-M or ESP32, ThreadX, Zephyr, CMSIS-RTOS2), <code>ALLOC_Alloc()</code> and <code>ALLOC_Free()</code> may also be called from an interrupt.</p>
+
+<p>On a fault, such as an exhausted pool, the allocators call <code>FaultHandler()</code> (<em>Port/Fault.cpp</em>). The default asserts and aborts. On GCC and Clang it is a weak symbol: define your own <code>FaultHandler()</code> to log or reset instead.</p>
 
 # Reference Articles
 
