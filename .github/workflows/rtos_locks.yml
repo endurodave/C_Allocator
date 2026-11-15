@@ -1,0 +1,60 @@
+name: RTOS Locks
+
+# Compiles LockGuard.cpp and the allocators for Cortex-M4 with each RTOS lock option against the
+# real vendor headers (compile only: no link, no run). ALLOC_LOCK_FREERTOS is
+# built and run by the PlatformIO workflow (env:disco_f407vg) instead.
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+# Least privilege for GITHUB_TOKEN: these jobs only check out code.
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: ${{ matrix.lock }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        lock: [ALLOC_LOCK_THREADX, ALLOC_LOCK_CMSIS_RTOS2, ALLOC_LOCK_USER, ALLOC_LOCK_NONE]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Install ARM GCC toolchain
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        release: '14.2.Rel1'
+
+    # Only the headers the lock needs, from the upstream repositories
+    - name: Fetch RTOS headers
+      run: |
+        mkdir -p /tmp/threadx /tmp/cmsis
+        curl -sfL -o /tmp/threadx/tx_api.h \
+          https://raw.githubusercontent.com/eclipse-threadx/threadx/master/common/inc/tx_api.h
+        curl -sfL -o /tmp/threadx/tx_port.h \
+          https://raw.githubusercontent.com/eclipse-threadx/threadx/master/ports/cortex_m4/gnu/inc/tx_port.h
+        curl -sfL -o /tmp/cmsis/cmsis_compiler.h \
+          https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/cmsis_compiler.h
+        curl -sfL -o /tmp/cmsis/cmsis_gcc.h \
+          https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/cmsis_gcc.h
+
+    # -D__PROGRAM_START=1: cmsis_gcc.h's default startup code needs
+    # -fpermissive on newer GCC; a real target supplies its own startup code.
+    - name: Compile
+      run: |
+        FLAGS="-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -O2 -Wall -Wextra -Werror --specs=nano.specs"
+        arm-none-eabi-g++ Port/LockGuard.cpp Port/Fault.cpp $FLAGS -std=gnu++11 -fno-exceptions \
+          -D${{ matrix.lock }} -D__PROGRAM_START=1 -I Port -I /tmp/threadx -I /tmp/cmsis
+        arm-none-eabi-gcc Allocator/fb_allocator.c Allocator/x_allocator.c $FLAGS -std=c99 \
+          -I Allocator -I Port
